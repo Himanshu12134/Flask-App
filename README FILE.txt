@@ -1,0 +1,2 @@
+The objective of this python project is to create a To-Do List with Graphql API calls.
+As i had the problem with flask_keycloak it was unable to install on my system. I tried to downgrade the versions for Flask and python but it does not get installed so i use alternative way for keycloak and created the app. Leaving this keycloak i have implemented all the things which were mentioned in the assignment.
