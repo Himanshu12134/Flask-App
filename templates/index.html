@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Todo List</title>
+</head>
+<body>
+    <h1>Todo List</h1>
+    
+    <p>Welcome, {{ session['username'] }}! <a href="{{ url_for('logout') }}">Logout</a></p>
+
+    <h2>Your Todos</h2>
+    <ul>
+        {% for todo in todos %}
+            <li>
+                <input type="checkbox" {% if todo['done'] %}checked{% endif %} onclick="toggleDone({ loopindex0 })">
+                {{ todo['title'] }} - {{ todo['description'] }} - {{ todo['time'] }}
+                <a href="{{ url_for('edit', index=loop.index0) }}">Edit</a>
+                <a href="{{ url_for('delete', index=loop.index0) }}">Delete</a>
+            </li>
+        {% endfor %}
+    </ul>
+
+    {% if users[session['username']]['pro_license'] %}
+        <h2>Upload Image to Todo</h2>
+        <form action="{{ url_for('upload') }}" method="post" enctype="multipart/form-data">
+            <label for="file">Choose file:</label>
+            <input type="file" name="file" id="file" accept="image/*">
+            <input type="submit" value="Upload">
+        </form>
+        
+        {% if uploaded_success %}
+            <p>File uploaded successfully!</p>
+        {% endif %}
+        
+        <h2>Uploaded Files</h2>
+        {% for file in uploaded_files %}
+            <p>{{ file }}</p>
+        {% endfor %}
+
+        <!-- Add Todo Form for Pro License Users -->
+        <h2>Add Todo</h2>
+        <form action="{{ url_for('add') }}" method="post">
+            <label for="title">Title:</label>
+            <input type="text" name="title" id="title" required>
+            
+            <label for="description">Description:</label>
+            <input type="text" name="description" id="description" required>
+            
+            <label for="time">Time:</label>
+            <input type="time" name="time" id="time" required>
+            
+            <input type="submit" value="Add Todo">
+        </form>
+        {% else %}
+    <!-- Add Todo Form for Non-Pro License Users -->
+<h2>Add Todo</h2>
+<form action="{{ url_for('add') }}" method="post">
+    <label for="title">Title:</label>
+    <input type="text" name="title" id="title" required>
+    
+    <label for="description">Description:</label>
+    <input type="text" name="description" id="description" required>
+    
+    <label for="time">Time:</label>
+    <input type="time" name="time" id="time" required>
+
+    <!-- Inform non-pro license users that they cannot upload images -->
+    <p>Non-pro license users cannot upload images.</p>
+
+    <!-- Add a link/button for Pro license purchase -->
+    <a href="{{ url_for('pro_license_purchase') }}">Purchase Pro License</a>
+
+    <input type="submit" value="Add Todo">
+</form>
+
+{% endif %}
+    <script>
+        function toggleDone(index) {
+            // Send an AJAX request to update the 'done' status on the server
+            fetch("{{ url_for('check', index=0) }}".replace('0', index), {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+            })
+            .then(response => response.json())
+            .then(data => {
+                // Update the checkbox state based on the server response
+                const checkbox = document.querySelectorAll('input[type="checkbox"]')[index];
+                checkbox.checked = data.done;
+            })
+            .catch(error => console.error('Error:', error));
+        }
+    </script>
+</body>
+</html>
